@@ -797,3 +797,18 @@ fn config_flags() anytype {
 fn have(c: bool) ?c_int {
     return if (c) 1 else null;
 }
+
+//import os
+//HAVE = """HAVE IN HERE"""
+//configh = open('config/config.h').read()
+//for have in HAVE.splitlines():
+	//constant = have.strip()[1:].split('=')[0].strip()
+	//def1 = f'#define {constant} 1\n' in configh
+	//def0 = f'#define {constant} 0\n' in configh
+	//undef = f'/* #undef {constant} */\n' in configh
+	//if def1:
+	//	print(f"            .{constant} = 1,")
+	//elif def0:
+	//	print(f"            .{constant} = 0,")
+	//elif undef:
+	//	print(f"            .{constant} = null,")
