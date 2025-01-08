@@ -782,16 +782,27 @@ pub fn build(b: *std.Build) void {
         "output/outlib.c",
         "output/outmacho.c",
         "output/outobj.c",
-    } ++ if (target.result.os.tag != .windows) .{"nasmlib/ilog2.c"} else .{};
+    };
+
     const flags = [_][]const u8{
         "-DHAVE_CONFIG_H",
         "-std=c17",
         "-Wno-implicit-function-declaration",
     };
+
     exe.addCSourceFiles(.{
         .files = &files,
         .flags = &flags,
     });
+    if (target.result.os.tag != .windows) {
+        // ilog2.c is not included on Windows since it causes
+        // duplicate symbol errors
+        exe.addCSourceFiles(.{
+            .files = &.{"nasmlib/ilog2.c"},
+            .flags = &flags,
+        });
+    }
+
     exe.linkLibC();
     b.installArtifact(exe);
 }
