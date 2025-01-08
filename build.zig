@@ -6,6 +6,9 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
     const t = target.result;
 
+    if (t.os.tag == .windows and t.abi != .msvc)
+        @panic("on windows only abi msvc is supported");
+
     const exe = b.addExecutable(.{
         .name = "nasm",
         .target = target,
@@ -28,8 +31,7 @@ pub fn build(b: *std.Build) void {
         .NASM_VER = "2.16.01",
     }));
 
-    // TODO:: ABI must be MSVC on Windows
-    switch (target.result.os.tag) {
+    switch (t.os.tag) {
         .linux => exe.addConfigHeader(b.addConfigHeader(.{
             .style = .{ .autoconf = b.path("config/config.h.in") },
             .include_path = "config/config.h",
@@ -794,7 +796,7 @@ pub fn build(b: *std.Build) void {
         .files = &files,
         .flags = &flags,
     });
-    if (target.result.os.tag != .windows) {
+    if (t.os.tag != .windows) {
         // ilog2.c is not included on Windows since it causes
         // duplicate symbol errors
         exe.addCSourceFiles(.{
@@ -804,6 +806,7 @@ pub fn build(b: *std.Build) void {
     }
 
     exe.linkLibC();
+
     b.installArtifact(exe);
 }
 
