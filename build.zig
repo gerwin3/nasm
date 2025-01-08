@@ -13,6 +13,7 @@ pub fn build(b: *std.Build) void {
         .name = "nasm",
         .target = target,
         .optimize = optimize,
+        .linkage = if (t.os.tag == .windows) .dynamic else .static,
     });
 
     exe.addIncludePath(b.path("include"));
