@@ -27,11 +27,12 @@ pub fn build(b: *std.Build) void {
         .NASM_VERSION_ID = 0x02100100,
         .NASM_VER = "2.16.01",
     }));
-    exe.addConfigHeader(b.addConfigHeader(.{
-        .style = .{ .autoconf = b.path("config/config.h.in") },
-        .include_path = "config/config.h",
-    }, switch (target.os.tag) {
-        .linux => .{
+
+    switch (target.result.os.tag) {
+        .linux => exe.addConfigHeader(b.addConfigHeader(.{
+            .style = .{ .autoconf = b.path("config/config.h.in") },
+            .include_path = "config/config.h",
+        }, .{
             .ABORT_ON_PANIC = have(optimize == .Debug),
             .AC_APPLE_UNIVERSAL_BUILD = null,
             .CFLAGS_FDATA_SECTIONS = null,
@@ -248,8 +249,11 @@ pub fn build(b: *std.Build) void {
             .typeof = .__typeof,
             .uintptr_t = null,
             .vsnprintf = null,
-        },
-        .macos => .{
+        })),
+        .macos => exe.addConfigHeader(b.addConfigHeader(.{
+            .style = .{ .autoconf = b.path("config/config.h.in") },
+            .include_path = "config/config.h",
+        }, .{
             .ABORT_ON_PANIC = have(optimize == .Debug),
             .AC_APPLE_UNIVERSAL_BUILD = null,
             .CFLAGS_FDATA_SECTIONS = null,
@@ -466,10 +470,35 @@ pub fn build(b: *std.Build) void {
             .typeof = .__typeof,
             .uintptr_t = null,
             .vsnprintf = null,
-        },
-        .windows => unreachable, // TODO
+        })),
+        // TODO: Windows support:
+        //
+        // Use the following script to get a Windows-compatible version (on Windows ofc):
+        //
+        // ```python
+        // import os
+        // HAVE = """TODO PUT INNER OF THE CONFIG ANON STRUCT IN HERE"""
+        // configh = open('config/config.h').read()
+        // for have in HAVE.splitlines():
+        //     constant = have.strip()[1:].split('=')[0].strip()
+        //     def1 = f'#define {constant} 1\n' in configh
+        //     def0 = f'#define {constant} 0\n' in configh
+        //     undef = f'/* #undef {constant} */\n' in configh
+        //     if def1:
+        //         	print(f"            .{constant} = 1,")
+        //     elif def0:
+        //         	print(f"            .{constant} = 0,")
+        //     elif undef:
+        //         print(f"            .{constant} = null,")
+        // ```
+        //
+        // Result can be pasted into the .{}
+        .windows => exe.addConfigHeader(b.addConfigHeader(.{
+            .style = .{ .autoconf = b.path("config/config.h.in") },
+            .include_path = "config/config.h",
+        }, .{})), // TODO
         else => @panic("os not supported"),
-    }));
+    }
     const files = [_][]const u8{
         "nasmlib/alloc.c",
         "nasmlib/asprintf.c",
@@ -573,18 +602,3 @@ pub fn build(b: *std.Build) void {
 fn have(c: bool) ?c_int {
     return if (c) 1 else null;
 }
-
-//import os
-//HAVE = """HAVE IN HERE"""
-//configh = open('config/config.h').read()
-//for have in HAVE.splitlines():
-//constant = have.strip()[1:].split('=')[0].strip()
-//def1 = f'#define {constant} 1\n' in configh
-//def0 = f'#define {constant} 0\n' in configh
-//undef = f'/* #undef {constant} */\n' in configh
-//if def1:
-//	print(f"            .{constant} = 1,")
-//elif def0:
-//	print(f"            .{constant} = 0,")
-//elif undef:
-//	print(f"            .{constant} = null,")
