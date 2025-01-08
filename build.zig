@@ -28,6 +28,7 @@ pub fn build(b: *std.Build) void {
         .NASM_VER = "2.16.01",
     }));
 
+    // TODO:: ABI must be MSVC on Windows
     switch (target.result.os.tag) {
         .linux => exe.addConfigHeader(b.addConfigHeader(.{
             .style = .{ .autoconf = b.path("config/config.h.in") },
@@ -706,7 +707,6 @@ pub fn build(b: *std.Build) void {
         "nasmlib/file.c",
         "nasmlib/filename.c",
         "nasmlib/hashtbl.c",
-        "nasmlib/ilog2.c",
         "nasmlib/md5c.c",
         "nasmlib/mmap.c",
         "nasmlib/nctype.c",
@@ -782,7 +782,7 @@ pub fn build(b: *std.Build) void {
         "output/outlib.c",
         "output/outmacho.c",
         "output/outobj.c",
-    };
+    } ++ if (target.result.os.tag != .windows) .{"nasmlib/ilog2.c"} else .{};
     const flags = [_][]const u8{
         "-DHAVE_CONFIG_H",
         "-std=c17",
