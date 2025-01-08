@@ -605,7 +605,7 @@ pub fn build(b: *std.Build) void {
             .HAVE_STRLCPY = null,
             .HAVE_STRNCASECMP = null,
             .HAVE_STRNICMP = 1,
-            .HAVE_STRNLEN = null,
+            .HAVE_STRNLEN = 1,
             .HAVE_STRRCHRNUL = null,
             .HAVE_STRSEP = null,
             .HAVE_STRUCT_STAT = null,
