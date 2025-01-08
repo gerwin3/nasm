@@ -20,7 +20,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         includes:
           - os: windows-latest
-            options: "-Dabi=msvc"
+            options: "-Dtarget=native-native-msvc"
 
     runs-on: ${{ matrix.os }}
     steps:
