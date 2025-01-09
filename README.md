@@ -13,9 +13,9 @@ have been deleted, and the build system has been replaced with `build.zig`.
 
 | Zig version | Status |
 |-------------|--------|
-| zig 12.0.0  | ✅     |
-| zig 12.0.1  | ✅     |
-| zig 13.0.0  | ✅     |
+| zig 0.12.0  | ✅     |
+| zig 0.12.1  | ✅     |
+| zig 0.13.0  | ✅     |
 
 This is a fork of [NASM](https://nasm.us/), packaged for Zig. 
 
