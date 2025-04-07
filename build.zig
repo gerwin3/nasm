@@ -6,9 +6,6 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
     const t = target.result;
 
-    if (t.os.tag == .windows and t.abi != .msvc)
-        @panic("on windows only abi msvc is supported");
-
     const exe = b.addExecutable(.{
         .name = "nasm",
         .target = target,
@@ -474,8 +471,6 @@ pub fn build(b: *std.Build) void {
             .uintptr_t = null,
             .vsnprintf = null,
         })),
-        // these were taken from msvc.h
-        // NOTE: Only works for Visual Studio 2015 and upwards.
         .windows => exe.addConfigHeader(b.addConfigHeader(.{
             .style = .{ .autoconf = b.path("config/config.h.in") },
             .include_path = "config/config.h",
@@ -545,7 +540,7 @@ pub fn build(b: *std.Build) void {
             .HAVE_ENDIAN_H = null,
             .HAVE_FACCESSAT = null,
             .HAVE_FCNTL_H = 1,
-            .HAVE_FILENO = 0,
+            .HAVE_FILENO = null,
             .HAVE_FSEEKO = null,
             .HAVE_FSTAT = null,
             .HAVE_FTRUNCATE = null,
@@ -585,7 +580,7 @@ pub fn build(b: *std.Build) void {
             .HAVE_ISASCII = null,
             .HAVE_ISCNTRL = null,
             .HAVE_MACHINE_ENDIAN_H = null,
-            .HAVE_MEMPCPY = null,
+            .HAVE_MEMPCPY = 1,
             .HAVE_MEMPSET = null,
             .HAVE_MINIX_CONFIG_H = null,
             .HAVE_MMAP = null,
@@ -596,7 +591,7 @@ pub fn build(b: *std.Build) void {
             .HAVE_STDARG_H = null,
             .HAVE_STDBOOL_H = null,
             .HAVE_STDC_INLINE = null,
-            .HAVE_STDINT_H = null,
+            .HAVE_STDINT_H = 1,
             .HAVE_STDIO_H = null,
             .HAVE_STDLIB_H = 1,
             .HAVE_STDNORETURN_H = null,
@@ -708,6 +703,7 @@ pub fn build(b: *std.Build) void {
         "nasmlib/crc64.c",
         "nasmlib/file.c",
         "nasmlib/filename.c",
+        "nasmlib/ilog2.c",
         "nasmlib/hashtbl.c",
         "nasmlib/md5c.c",
         "nasmlib/mmap.c",
@@ -796,14 +792,6 @@ pub fn build(b: *std.Build) void {
         .files = &files,
         .flags = &flags,
     });
-    if (t.os.tag != .windows) {
-        // ilog2.c is not included on Windows since it causes
-        // duplicate symbol errors
-        exe.addCSourceFiles(.{
-            .files = &.{"nasmlib/ilog2.c"},
-            .flags = &flags,
-        });
-    }
 
     exe.linkLibC();
 
